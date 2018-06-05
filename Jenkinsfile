@@ -35,7 +35,9 @@ node(platform) {
     }
 
     stage("Prepare") {
-        writeFile file: 'www/fhconfig.json', text: params.FH_CONFIG_CONTENT
+        if(params.FH_CONFIG_CONTENT) {
+            writeFile file: 'www/fhconfig.json', text: params.FH_CONFIG_CONTENT
+        }
         sh 'npm install --production'
         sh "cordova platform rm ${platform}"
         sh "cordova platform add ${platform}"
@@ -69,19 +71,21 @@ node(platform) {
         }
     }
 
+    def keyStoreId = params.BUILD_CREDENTIAL_ID
+    def keyAlias = params.BUILD_CREDENTIAL_ALIAS ?: ''
     stage("Sign") {
         if (platform == 'android') {
             if (BUILD_CONFIG == 'release') {
                 signAndroidApks (
-                    keyStoreId: "${params.BUILD_CREDENTIAL_ID}",
-                    keyAlias: "${params.BUILD_CREDENTIAL_ALIAS}",
-                    apksToSign: "platforms/android/**/*-unsigned.apk",
-                    // uncomment the following line to output the signed APK to a separate directory as described above
-                    // signedApkMapping: [ $class: UnsignedApkBuilderDirMapping ],
-                    // uncomment the following line to output the signed APK as a sibling of the unsigned APK, as described above, or just omit signedApkMapping
-                    // you can override these within the script if necessary
-                    // androidHome: '/usr/local/Cellar/android-sdk'
-                )
+                  keyStoreId: keyStoreId,
+                  keyAlias: keyAlias,
+                  apksToSign: "**/*-unsigned.apk",
+                  // uncomment the following line to output the signed APK to a separate directory as described above
+                  // signedApkMapping: [ $class: UnsignedApkBuilderDirMapping ],
+                  // uncomment the following line to output the signed APK as a sibling of the unsigned APK, as described above, or just omit signedApkMapping
+                  // you can override these within the script if necessary
+                  // androidHome: '/usr/local/Cellar/android-sdk'
+              )
             } else {
                 println('Debug Build - Using default developer signing key')
             }
