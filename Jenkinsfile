@@ -76,7 +76,7 @@ node(platform) {
             if (BUILD_CONFIG == 'release') {
                 signAndroidApks (
                     keyStoreId: "${params.BUILD_CREDENTIAL_ID}",
-                    keyAlias: "${params.BUILD_CREDENTIAL_ALIAS}",
+                    keyAlias: params.BUILD_CREDENTIAL_ALIAS ? "${params.BUILD_CREDENTIAL_ALIAS}" : "",
                     apksToSign: "platforms/android/**/*-unsigned.apk",
                     // uncomment the following line to output the signed APK to a separate directory as described above
                     // signedApkMapping: [ $class: UnsignedApkBuilderDirMapping ],
